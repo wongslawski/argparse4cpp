@@ -5,7 +5,7 @@ using namespace ArgParse;
 
 int main(int argc, char* argv[]) {
 
-    ArgumentParser argparser("this is an example program for argpars, a possible command line is ./example -a 1 -b 0.1 0.5 1.0 --chi --delta --epsilon a b c -g true false");
+    ArgumentParser argparser("this is an example program for argparse, a possible command line is ./example -a 1 -b 0.1 0.5 1.0 --chi --delta --epsilon a b c -g true false");
     argparser.AddArgument("-a", "--alpha", "alpha", ValueType::Int, "fixed int val")
         .SetRequired(true).SetNargs(1).SetChoices<int>({0, 1, 2});
     argparser.AddArgument("-b", "--beta", "beta", ValueType::Double, "fixed double list")
