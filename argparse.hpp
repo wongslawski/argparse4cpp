@@ -14,8 +14,6 @@ using namespace std;
 
 namespace ArgParse {
 
-std::regex reg_integer("-?\\d+");
-std::regex reg_float("-?\\d+(\\.\\d+)?");
 
 enum class ValueType: int {
     Int = 0,
@@ -29,8 +27,9 @@ enum class ValueType: int {
 enum class ActionType: int {
     Store = 0,
     StoreTrue,
-    StoreFalse,
+    StoreFalse
 };
+
 
 class ArgumentParser;
 
@@ -54,7 +53,8 @@ public:
         choices(src.choices),
         values(src.values),
         loaded(src.loaded),
-        action(src.action) {}
+        action(src.action),
+        range(src.range) {}
 
     Argument(const string &short_name,
             const string &name,
@@ -87,6 +87,7 @@ public:
             values = src.values;
             loaded = src.loaded;
             action = src.action;
+            range = src.range;
         }
         return *this;
     }
@@ -140,6 +141,15 @@ public:
     Argument& SetAction(ActionType action) { this->action = action; return *this; }
     ActionType GetAction() const { return this->action; }
 
+    Argument& SetPrint(bool print) { this->print = print; return *this; }
+
+    Argument& SetRange(double lower, double upper) {
+        assert(type == ValueType::Int || type == ValueType::Long || type == ValueType::Double || type == ValueType::Float);
+        range[0] = lower;
+        range[1] = upper;
+        return *this;
+    }
+
 private:
     template <class T>
     string Cast(const T &val) {
@@ -159,11 +169,18 @@ private:
         return res;
     }
 
+    bool CheckRange(double x) {
+        if (range[0] < range[1]) {
+            return x >= range[0] && x <= range[1];
+        }
+        return true;
+    }  
+
     bool CheckValue(const string &val) {
         if (this->type == ValueType::Int || this->type == ValueType::Long) {
-            return std::regex_match(val, reg_integer);
+            return std::regex_match(val, reg_integer) && CheckRange(atof(val.c_str()));
         } else if (this->type == ValueType::Float || this->type == ValueType::Double) {
-            return std::regex_match(val, reg_float);
+            return std::regex_match(val, reg_float) && CheckRange(atof(val.c_str()));
         } else if (this->type == ValueType::Bool) {
             return val == "true" || val == "false";
         }
@@ -250,11 +267,18 @@ private:
     vector<string> values;
     bool loaded{ false };
     ActionType action{ ActionType::Store };
+    std::regex reg_integer{ "-?\\d+" };
+    std::regex reg_float{ "-?\\d+(\\.\\d+)?" };
+    bool print{ true };
+    vector<double> range {0, -1};
 };
 
 class ArgumentParser {
 public:
-    ArgumentParser(const string &desc): description(desc) {}
+    ArgumentParser(const string &desc): description(desc) {
+        AddArgument("-h", "--help", "help", ValueType::Bool, "show help info and exit")
+            .SetRequired(false).SetAction(ActionType::StoreTrue).SetPrint(false);
+    }
     
     Argument& AddArgument(const string &short_name,
             const string &name,
@@ -320,10 +344,12 @@ public:
             return -1;
         }
 
-        if (!CheckArguments()) {
-            return -1;
+        if (args_map.find("help")->second.loaded) {
+            return 1;
+        } else if (CheckArguments()) {
+            return 0;
         }
-        return 0;
+        return -1;
     }
 
     template <class T>
@@ -374,13 +400,43 @@ public:
         throw std::bad_exception();
     }
 
+    void PrintHelp () {
+        fprintf(stdout, "usage: <yourscript> [-h/--help] [options]\n\n");
+        fprintf(stdout, "%s\n\n", description.c_str());
+        fprintf(stdout, "options (required):\n");
+        map<string, Argument>::const_iterator iter = args_map.begin();
+        while(iter != args_map.end()) {
+            const Argument &arg = (*iter).second;
+            if (arg.required && arg.print) {
+                fprintf(stdout, "\t%s, %s\t\t%s\n", 
+                        arg.short_name.c_str(),
+                        arg.name.c_str(),
+                        arg.help.c_str());
+            }
+            ++iter;
+        }
+        fprintf(stdout, "options (optional):\n");
+        iter = args_map.begin();
+        while(iter != args_map.end()) {
+            const Argument &arg = (*iter).second;
+            if (!arg.required && arg.print) {
+                fprintf(stdout, "\t%s, %s\t\t%s\n",
+                        arg.short_name.c_str(),
+                        arg.name.c_str(),
+                        arg.help.c_str());
+            }
+            ++iter;
+        }
+        fprintf(stdout, "\n");
+    }
+
 private:
     
     bool CheckArguments() {
         map<string, Argument>::const_iterator iter = args_map.begin();
         while(iter != args_map.end()) {
             const Argument &arg = (*iter).second;
-            if (arg.required && this->loaded_args.find(arg.dest) == this->loaded_args.end()) {
+            if (arg.required && !arg.loaded) {
                 fprintf(stderr, "argparse error! missing argument %s %s\n", 
                         arg.short_name.c_str(), arg.name.c_str());
                 return false;
@@ -398,11 +454,7 @@ private:
             return 0;
         }
         Argument &arg = args_map[(*iter).second];
-        int ret = arg.AcceptValue(k, v);
-        if (ret == 0) {
-            loaded_args.insert(arg.dest);
-        }
-        return ret;
+        return arg.AcceptValue(k, v);
     }
 
     template <class T>
@@ -427,7 +479,6 @@ private:
     string description;
     map<string, Argument> args_map;
     map<string, string> name_map;
-    set<string> loaded_args;
 }; 
 
 };
