@@ -94,6 +94,12 @@ if (ret > 0) {
 ```
 
 # Get argument value
+Check whether a key is good enough to fetch arg value(s).  
+If argument xxx is defined as optional and no default value is specified. `argparser.Good("xxx");` will return false.
+```
+bool is_good = argparser.Good("xxx");
+```
+
 Get single value
 ```
 int alpha = argparser.Get<int>("alpha");
