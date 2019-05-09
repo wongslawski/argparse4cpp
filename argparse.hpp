@@ -352,6 +352,18 @@ public:
         return -1;
     }
 
+    bool Good(const string &key) {
+        map<string, Argument>::const_iterator iter = args_map.find(key);
+        if (iter == args_map.end()) {
+            return false;
+        }
+        const Argument &arg = (*iter).second;
+        if (arg.action == ActionType::Store) {
+            return !arg.values.empty() || !arg.defaults.empty();
+        }
+        return true;
+    }
+
     template <class T>
     T Get(const string &key) {
         map<string, Argument>::const_iterator iter = args_map.find(key);

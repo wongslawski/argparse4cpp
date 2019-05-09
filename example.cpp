@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
         .SetRequired(true).SetNargs('*').SetDefault<string>({"a", "b", "c", "d", "e", "f", "g"});
     argparser.AddArgument("-g", "--gamma", "gamma", ValueType::Bool, "nargs+")
         .SetRequired(true).SetNargs('+').SetDefault<bool>({true, false, true, true});
- 
+
     int ret = argparser.Parse(argc, argv);
 
     if (ret > 0) {
@@ -30,10 +30,14 @@ int main(int argc, char* argv[]) {
     
     fprintf(stdout, "successfully parsed args from command line\n");
     fprintf(stdout, "alpha = %d\n", argparser.Get<int>("alpha"));
-    fprintf(stdout, "beta = %f %f %f\n", 
-            argparser.GetList<double>("beta")[0],
-            argparser.GetList<double>("beta")[1],
-            argparser.GetList<double>("beta")[2]);
+    if (argparser.Good("beta")) {
+        fprintf(stdout, "beta = %f %f %f\n", 
+                argparser.GetList<double>("beta")[0],
+                argparser.GetList<double>("beta")[1],
+                argparser.GetList<double>("beta")[2]);
+    } else {
+        fprintf(stdout, "param beta not good\n");
+    }
     fprintf(stdout, "chi = %s\n", argparser.Get<bool>("chi") ? "true" : "false");
     fprintf(stdout, "delta = %s\n", argparser.Get<bool>("delta") ? "true" : "false");
 
