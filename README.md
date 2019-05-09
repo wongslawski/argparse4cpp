@@ -79,9 +79,9 @@ argparser.AddArgument("-c", "--chi", "chi", ValueType::Bool, "action->store_true
 ```c++
 int ret = argparser.Parse(argc, argv); // argv[0] should be program path
 ```
-* ret = 0 means successfully parsing 
-* ret > 0 means help or usage is needed
-* ret < 0 means failure in parsing
+* `ret = 0` means successfully parsing 
+* `ret > 0` means help or usage is needed
+* `ret < 0` means failure in parsing
 
 # Get argument value
 Get single value
