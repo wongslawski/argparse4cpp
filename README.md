@@ -33,8 +33,8 @@ AddArgument(const string &short_name, const string &name,
         const string &dest, ValueType type, const string &help);
 ```
 
-* `short_name` arg name with `-` prefix
-* `name` arg name with `--` prefix
+* `short_name` arg name with `-` prefix. prefix should only contain [a-z] [A_Z] and '-'.
+* `name` arg name with `--` prefix. prefix should only contain [a-z] [A_Z] and '-'.
 * `dest` the key to get argument values
 * `type` type of specified values
   * ValueType::Int
@@ -57,6 +57,8 @@ Configure other argument properties
   * `ActionType::Store` by default, read values at command line 
   * `ActionType::StoreTrue` if arg is present, value set to true. Otherwise, false. (with `ValueType::Bool`)
   * `ActionType::StoreFalse` if arg is present, value set to false. Otherwise, true. (with `ValueType::Bool`)
+* `AtLeast(double lower)` specifies lower bound of values. (with `ValueType::Int,Long,Float,Double`)
+* `AtMost(double upper)` specifies upper bound of values. (with `ValueType::Int,Long,Float,Double`)
 * `SetRange(double lower, double upper)` specifies the bound of values. (with `ValueType::Int,Long,Float,Double`)
 
 #### Argument (optional) receiving a fixed number of doubles [0, 1]
