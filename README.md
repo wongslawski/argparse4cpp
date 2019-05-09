@@ -83,6 +83,14 @@ int ret = argparser.Parse(argc, argv); // argv[0] should be program path
 * `ret > 0` means help or usage is needed
 * `ret < 0` means failure in parsing
 
+To print help info, try
+```
+if (ret > 0) {
+    argparser.PrintHelp();
+    return 0;
+}
+```
+
 # Get argument value
 Get single value
 ```
