@@ -4,6 +4,8 @@ It abandons positional arguments and **_supports only optional arguments_**(like
 
 # Example
 See [example.cpp](https://github.com/wongslawski/argparse4cpp/blob/master/example.cpp)
+1. `make`
+2. try `./example -a 1 -b 0.1 0.5 1.0 --chi --delta --epsilon a b c -g true false`
 
 # Quick Start
 1. `make install` and `#include <argparse4cpp/argparse.hpp>`
