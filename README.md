@@ -13,7 +13,7 @@ See [example.cpp](https://github.com/wongslawski/argparse4cpp/blob/master/exampl
 
 # Creating a parser
 ```c++
-ArgumentParser argparser("this is an example program for argpars);
+ArgumentParser argparser("this is an example program for argparse");
 ```
 
 # Add arguments
