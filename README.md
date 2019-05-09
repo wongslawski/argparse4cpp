@@ -33,8 +33,8 @@ AddArgument(const string &short_name, const string &name,
         const string &dest, ValueType type, const string &help);
 ```
 
-* `short_name` arg name with `-` prefix. name should only contain [a-z] [A_Z] and '-'.
-* `name` arg name with `--` prefix. name should only contain [a-z] [A_Z] and '-'.
+* `short_name` arg name with `-` prefix. name should only contain `[a-z] [A_Z] and '-'`.
+* `name` arg name with `--` prefix. name should only contain `[a-z] [A_Z] and '-'`.
 * `dest` the key to get argument values
 * `type` type of specified values
   * ValueType::Int
