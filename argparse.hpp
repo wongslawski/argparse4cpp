@@ -202,12 +202,12 @@ private:
             // 检查值个数是否符合nargs
             if (fixed && v.size() != fixed_nargs) {
                 fprintf(stderr, "argparse error! value number mismatch for %s (expected:%d, actual:%d)\n",
-                        k.c_str(), fixed_nargs, v.size());
+                        k.c_str(), fixed_nargs, (int)v.size());
                 return -1;
             }
             if (!fixed && variable_nargs == '+' && v.empty()) {
                 fprintf(stderr, "argparse error! value number mismatch for %s (expected: >0, actual:%d)\n",
-                        k.c_str(), v.size());
+                        k.c_str(), (int)v.size());
                 return -1;
             }
             
@@ -408,10 +408,7 @@ public:
         while(iter != args_map.end()) {
             const Argument &arg = (*iter).second;
             if (arg.required && arg.print) {
-                fprintf(stdout, "\t%s, %s\t\t%s\n", 
-                        arg.short_name.c_str(),
-                        arg.name.c_str(),
-                        arg.help.c_str());
+                PrintArgument(arg);
             }
             ++iter;
         }
@@ -420,10 +417,7 @@ public:
         while(iter != args_map.end()) {
             const Argument &arg = (*iter).second;
             if (!arg.required && arg.print) {
-                fprintf(stdout, "\t%s, %s\t\t%s\n",
-                        arg.short_name.c_str(),
-                        arg.name.c_str(),
-                        arg.help.c_str());
+                PrintArgument(arg);
             }
             ++iter;
         }
@@ -431,6 +425,32 @@ public:
     }
 
 private:
+
+    string MkString(const vector<string> &vec, const string &delim) {
+        if (vec.empty()) {
+            return "";
+        }
+        ostringstream stream;
+        stream << vec[0];
+        for (int i = 1; i < vec.size(); ++i) {
+            stream << delim << vec[i];
+        }
+        return stream.str();
+    }
+
+    void PrintArgument(const Argument &arg) {
+        fprintf(stdout, "\t%s, %s\t\t%s", 
+                arg.short_name.c_str(),
+                arg.name.c_str(),
+                arg.help.c_str());
+        if (!arg.choices.empty()) {
+            fprintf(stdout, " (choices: %s)", MkString(arg.choices, "/").c_str());
+        }
+        if (arg.range[1] > arg.range[0]) {
+            fprintf(stdout, " (range: [%.2f, %.2f])", arg.range[0], arg.range[1]);
+        }
+        fprintf(stdout, "\n");
+    }
     
     bool CheckArguments() {
         map<string, Argument>::const_iterator iter = args_map.begin();
