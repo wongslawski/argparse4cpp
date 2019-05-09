@@ -94,12 +94,12 @@ if (ret > 0) {
 ```
 
 # Get argument value
-Check whether a key is good enough to fetch arg value(s).  
-Suppose argument xxx is defined as optional and no default value is specified. If xxx is not present at command line, `argparser.Good("xxx")` will return false.
+Check whether a key is good enough to fetch arg value(s).
 ```
 bool is_good = argparser.Good("xxx");
 ```
-
+Suppose argument xxx is defined as optional and no default value is specified. If xxx is not present at command line, `argparser.Good("xxx")` will return false.  
+  
 Get single value
 ```
 int alpha = argparser.Get<int>("alpha");
