@@ -9,6 +9,7 @@
 #include <regex>
 #include <sstream>
 #include <exception>
+#include <locale>
 
 using namespace std;
 
@@ -53,8 +54,12 @@ public:
         choices(src.choices),
         values(src.values),
         loaded(src.loaded),
-        action(src.action),
-        range(src.range) {}
+        action(src.action) {
+            range[0] = src.range[0];
+            range[1] = src.range[1];
+            set_range[0] = src.set_range[0];
+            set_range[1] = src.set_range[1];
+        }
 
     Argument(const string &short_name,
             const string &name,
@@ -87,7 +92,10 @@ public:
             values = src.values;
             loaded = src.loaded;
             action = src.action;
-            range = src.range;
+            range[0] = src.range[0];
+            range[1] = src.range[1];
+            set_range[0] = src.set_range[0];
+            set_range[1] = src.set_range[1];
         }
         return *this;
     }
@@ -144,15 +152,26 @@ public:
     Argument& SetPrint(bool print) { this->print = print; return *this; }
 
     Argument& SetRange(double lower, double upper) {
+        AtMost(upper).AtLeast(lower);
+        return *this;
+    }
+
+    Argument& AtLeast(double lower) {
         assert(type == ValueType::Int || type == ValueType::Long || type == ValueType::Double || type == ValueType::Float);
+        set_range[0] = true;
         range[0] = lower;
+        return *this;
+    }
+
+    Argument& AtMost(double upper) {
+        assert(type == ValueType::Int || type == ValueType::Long || type == ValueType::Double || type == ValueType::Float);
+        set_range[1] = true;
         range[1] = upper;
         return *this;
     }
 
-private:
     template <class T>
-    string Cast(const T &val) {
+    string Cast(const T &val) const {
         stringstream stream;
         stream << val;
         string res;
@@ -161,7 +180,7 @@ private:
     }
 
     template <class T>
-    vector<string> Cast(const vector<T> &val) {
+    vector<string> Cast(const vector<T> &val) const {
         vector<string> res;
         for (int i = 0; i < val.size(); ++i) {
             res.push_back(Cast<T>(val[i]));
@@ -169,9 +188,13 @@ private:
         return res;
     }
 
+private:
     bool CheckRange(double x) {
-        if (range[0] < range[1]) {
-            return x >= range[0] && x <= range[1];
+        if (set_range[0] && x < range[0]) {
+            return false;
+        }
+        if (set_range[1] && x > range[1]) {
+            return false;
         }
         return true;
     }  
@@ -270,7 +293,8 @@ private:
     std::regex reg_integer{ "-?\\d+" };
     std::regex reg_float{ "-?\\d+(\\.\\d+)?" };
     bool print{ true };
-    vector<double> range {0, -1};
+    double range[2] = {0, 0};
+    bool set_range[2] = {false, false};
 };
 
 class ArgumentParser {
@@ -319,7 +343,7 @@ public:
             if (arg.empty()) { continue; }
 
             // 如果是kv中的v，临时记录到vals
-            if (arg[0] != '-') {
+            if (!std::regex_match(arg, reg_key)) {
                 // 保证不可能出现有v无k
                 if (key.empty()) {
                     fprintf(stderr, "argparse error! value %s matched no key\n", arg.c_str());
@@ -458,8 +482,10 @@ private:
         if (!arg.choices.empty()) {
             fprintf(stdout, " (choices: %s)", MkString(arg.choices, "/").c_str());
         }
-        if (arg.range[1] > arg.range[0]) {
-            fprintf(stdout, " (range: [%.2f, %.2f])", arg.range[0], arg.range[1]);
+        if (arg.set_range[0] || arg.set_range[1]) {
+            fprintf(stdout, " (range: [%s, %s])", 
+                    arg.set_range[0] ? arg.Cast<double>(arg.range[0]).c_str() : "-inf", 
+                    arg.set_range[1] ? arg.Cast<double>(arg.range[1]).c_str() : "+inf");
         }
         fprintf(stdout, "\n");
     }
@@ -511,6 +537,7 @@ private:
     string description;
     map<string, Argument> args_map;
     map<string, string> name_map;
+    std::regex reg_key{ "-{1,2}[A-Za-z_]+" };
 }; 
 
 };

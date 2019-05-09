@@ -9,7 +9,7 @@ int main(int argc, char* argv[]) {
     argparser.AddArgument("-a", "--alpha", "alpha", ValueType::Int, "fixed int val")
         .SetRequired(true).SetNargs(1).SetChoices<int>({0, 1, 2});
     argparser.AddArgument("-b", "--beta", "beta", ValueType::Double, "fixed double list")
-        .SetRequired(false).SetNargs(3).SetRange(0, 1);
+        .SetRequired(false).SetNargs(3).AtLeast(0).AtMost(1); // .SetRange(0, 1) equals .AtLeast(0).AtMost(1)
     argparser.AddArgument("-c", "--chi", "chi", ValueType::Bool, "action->store_true")
         .SetRequired(false).SetAction(ActionType::StoreTrue);
     argparser.AddArgument("-d", "--delta", "delta", ValueType::Bool, "action->store_false")
