@@ -75,7 +75,7 @@ argparser.AddArgument("-c", "--chi", "chi", ValueType::Bool, "action->store_true
         .SetRequired(false).SetAction(ActionType::StoreTrue);
 ```
 
-# Parse Arguments
+# Parse arguments
 ```c++
 int ret = argparser.Parse(argc, argv); // argv[0] should be program path
 ```
