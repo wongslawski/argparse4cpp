@@ -4,4 +4,4 @@ clean:
 	rm -f example
 install:
 	mkdir -p /usr/local/include/argparse4cpp
-	cp -f argparse4cpp.hpp /usr/local/include/argparse4cpp/
+	cp -f argparse.hpp /usr/local/include/argparse4cpp/
