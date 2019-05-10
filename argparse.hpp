@@ -189,7 +189,7 @@ public:
     }
 
 private:
-    bool CheckRange(double x) {
+    bool CheckRange(double x) const {
         if (set_range[0] && x < range[0]) {
             return false;
         }
@@ -199,7 +199,7 @@ private:
         return true;
     }  
 
-    bool CheckValue(const string &val) {
+    bool CheckValue(const string &val) const {
         if (this->type == ValueType::Int || this->type == ValueType::Long) {
             return std::regex_match(val, reg_integer) && CheckRange(atof(val.c_str()));
         } else if (this->type == ValueType::Float || this->type == ValueType::Double) {
@@ -210,7 +210,7 @@ private:
         return true;
     }
 
-    bool CheckValue(const vector<string> &val) {
+    bool CheckValue(const vector<string> &val) const {
         for (int i = 0; i < val.size(); ++i) {
             if (!CheckValue(val[i])) {
                 return false;
@@ -261,14 +261,14 @@ private:
 
 private:
     
-    string Fix(const string &v) {
+    string Fix(const string &v) const {
         if (type == ValueType::Bool) {
             return v == "true" ? "1" : "0";
         }
         return v;
     }
 
-    vector<string> Fix(const vector<string> &v) {
+    vector<string> Fix(const vector<string> &v) const {
         vector<string> new_v;
         for (int i = 0; i < v.size(); ++i) {
             new_v.push_back(Fix(v[i]));
@@ -462,7 +462,7 @@ public:
 
 private:
 
-    string MkString(const vector<string> &vec, const string &delim) {
+    string MkString(const vector<string> &vec, const string &delim) const {
         if (vec.empty()) {
             return "";
         }
@@ -474,7 +474,7 @@ private:
         return stream.str();
     }
 
-    void PrintArgument(const Argument &arg) {
+    void PrintArgument(const Argument &arg) const {
         fprintf(stdout, "\t%s, %s\t\t%s", 
                 arg.short_name.c_str(),
                 arg.name.c_str(),
@@ -490,7 +490,7 @@ private:
         fprintf(stdout, "\n");
     }
     
-    bool CheckArguments() {
+    bool CheckArguments() const {
         map<string, Argument>::const_iterator iter = args_map.begin();
         while(iter != args_map.end()) {
             const Argument &arg = (*iter).second;
@@ -516,7 +516,7 @@ private:
     }
 
     template <class T>
-    T Cast(const string &val) {
+    T Cast(const string &val) const {
         stringstream stream;
         T res;
         stream << val;
@@ -525,7 +525,7 @@ private:
     }
 
     template <class T>
-    vector<T> Cast(const vector<string> &val) {
+    vector<T> Cast(const vector<string> &val) const {
         vector<T> res;
         for (int i = 0; i < val.size(); ++i) {
             res.push_back(Cast<T>(val[i]));
