@@ -376,7 +376,7 @@ public:
         return -1;
     }
 
-    bool Good(const string &key) {
+    bool Good(const string &key) const {
         map<string, Argument>::const_iterator iter = args_map.find(key);
         if (iter == args_map.end()) {
             return false;
@@ -389,7 +389,7 @@ public:
     }
 
     template <class T>
-    T Get(const string &key) {
+    T Get(const string &key) const {
         map<string, Argument>::const_iterator iter = args_map.find(key);
         if (iter == args_map.end()) {
             throw std::invalid_argument("argparse error! key not found");
@@ -413,7 +413,7 @@ public:
     }
 
     template <class T>
-    vector<T> GetList(const string &key) {
+    vector<T> GetList(const string &key) const {
         map<string, Argument>::const_iterator iter = args_map.find(key);
         if (iter == args_map.end()) {
             throw std::invalid_argument("argparse error! key not found");
@@ -436,7 +436,7 @@ public:
         throw std::bad_exception();
     }
 
-    void PrintHelp () {
+    void PrintHelp () const {
         fprintf(stdout, "usage: <yourscript> [-h/--help] [options]\n\n");
         fprintf(stdout, "%s\n\n", description.c_str());
         fprintf(stdout, "options (required):\n");
